@@ -8,14 +8,47 @@ L_LOW = 70
 H_HIGH = 100
 S_HIGH = 255
 L_HIGH = 255
+cap = cv2.VideoCapture(0)
+if(cap.isOpened() == False):
+    cap.open()
+def grabFeed():
+    ret, capture = cap.read()
+    print(ret)
+    # cam.open(CV_CAP_DSHOW);
+    # cam.set(CV_CAP_PROP_FOURCC, CV_FOURCC('M', 'J', 'P', 'G'));
+    # cam.set(CV_CAP_PROP_FRAME_WIDTH, 1920);
+    # cam.set(CV_CAP_PROP_FRAME_HEIGHT, 1080);
+    return capture
 
 def grabImage():
     return cv2.imread(SRC_IMAGE)
 
 def display(img):
     cv2.imshow('image', img)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    test = cap.get(cv2.CAP_PROP_POS_MSEC)
+    ratio = cap.get(cv2.CAP_PROP_POS_AVI_RATIO)
+    frame_rate = cap.get(cv2.CAP_PROP_FPS)
+    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    brightness = cap.get(cv2.CAP_PROP_BRIGHTNESS)
+    contrast = cap.get(cv2.CAP_PROP_CONTRAST)
+    saturation = cap.get(cv2.CAP_PROP_SATURATION)
+    hue = cap.get(cv2.CAP_PROP_HUE)
+    gain = cap.get(cv2.CAP_PROP_GAIN)
+    exposure = cap.get(cv2.CAP_PROP_EXPOSURE)
+    print("Test: ", test)
+    print("Ratio: ", ratio)
+    print("Frame Rate: ", frame_rate)
+    print("Height: ", height)
+    print("Width: ", width)
+    print("Brightness: ", brightness)
+    print("Contrast: ", contrast)
+    print("Saturation: ", saturation)
+    print("Hue: ", hue)
+    print("Gain: ", gain)
+    print("Exposure: ", exposure)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 def filter(img, h_low, s_low, l_low, h_high, s_high, l_high):
     hsl = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
@@ -73,48 +106,56 @@ def get3DCoordinates(corners):
     draw(img, img_coords, imgpts)
 
 def pipeline():
-    img = grabImage()
-    filtered = filter(img, H_LOW, S_LOW, L_LOW, H_HIGH, S_HIGH, L_HIGH)
-    im2, contours, hierarchy = cv2.findContours(filtered, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    target = contourfilter(contours, filtered, 0.1, 5.0, 250)
-    # print(str(target))
-    corners = []
-    for cnt in target:
+    feed = grabFeed()
+    display(feed)
 
-        approx = cv2.approxPolyDP(cnt, 0.01 * cv2.arcLength(cnt, True), True)
 
-        # draws boundary of contours.
-        cv2.drawContours(img, [approx], 0, (0, 0, 255), 2)
 
-        # Used to flatted the array containing
-        # the co-ordinates of the vertices.
-        n = approx.ravel()
-        i = 0
-
-        for j in n:
-            if (i % 2 == 0):
-                x = n[i]
-                y = n[i + 1]
-                cv2.circle(img, (x, y), 3, (255, 0, 0), 3)
-                corners.append((x, y))
-                # String containing the co-ordinates.
-                string = str(x) + " " + str(y)
-                # if (i == 0):
-                #     # text on topmost co-ordinate.
-                #     cv2.putText(img, "Arrow tip", (x, y),
-                #                 cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 0, 0))
-                # else:
-                #     # text on remaining co-ordinates.
-                #     cv2.putText(img, string, (x, y),
-                #                 cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 255, 0))
-            i = i + 1
-    cv2.drawContours(img, target, -1, (255, 0, 0), 2)
-    corners = sorted(corners, key=lambda x: x[1])
-    print(corners)
-    display(img)
+    # img = grabImage()
+    # filtered = filter(img, H_LOW, S_LOW, L_LOW, H_HIGH, S_HIGH, L_HIGH)
+    # im2, contours, hierarchy = cv2.findContours(filtered, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # target = contourfilter(contours, filtered, 0.1, 5.0, 250)
+    # # print(str(target))
+    # corners = []
+    # for cnt in target:
+    #
+    #     approx = cv2.approxPolyDP(cnt, 0.01 * cv2.arcLength(cnt, True), True)
+    #
+    #     # draws boundary of contours.
+    #     cv2.drawContours(img, [approx], 0, (0, 0, 255), 2)
+    #
+    #     # Used to flatted the array containing
+    #     # the co-ordinates of the vertices.
+    #     n = approx.ravel()
+    #     i = 0
+    #
+    #     for j in n:
+    #         if (i % 2 == 0):
+    #             x = n[i]
+    #             y = n[i + 1]
+    #             cv2.circle(img, (x, y), 3, (255, 0, 0), 3)
+    #             corners.append((x, y))
+    #             # String containing the co-ordinates.
+    #             string = str(x) + " " + str(y)
+    #             # if (i == 0):
+    #             #     # text on topmost co-ordinate.
+    #             #     cv2.putText(img, "Arrow tip", (x, y),
+    #             #                 cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 0, 0))
+    #             # else:
+    #             #     # text on remaining co-ordinates.
+    #             #     cv2.putText(img, string, (x, y),
+    #             #                 cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 255, 0))
+    #         i = i + 1
+    # cv2.drawContours(img, target, -1, (255, 0, 0), 2)
+    # corners = sorted(corners, key=lambda x: x[1])
+    # print(corners)
+    # display(img)
 
 
 
 
 while(True):
     pipeline()
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+cap.release()
